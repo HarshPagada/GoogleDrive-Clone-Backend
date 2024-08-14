@@ -15,9 +15,7 @@ router.post('/addfile', upload.single('file'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
-    }git config --global --unset core.excludesfile
-    git config --global --list
-
+    }
     
     // const userId = req.body.userId
     // console.log('Body:', userId);
@@ -46,9 +44,13 @@ router.get('/getfiles/:userId', async (req, res) => {
       return res.status(500).json({ error: 'GridFS not initialized' });
     }
 
-    const filesCollection = gfs.collection('uploads');
-    let files  = await filesCollection.find({ 'metadata.userId': mongoose.Types.ObjectId(userId) }).toArray();
-    // files.find({ user: req.user.id })
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+
+    console.log(userId)
+
+    const files = await gfs.collection('uploads.files').find({ 'metadata.userId': new mongoose.Types.ObjectId(userId) }).toArray();
     console.log('Files found:', files);
    
     
